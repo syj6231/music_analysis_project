@@ -5,7 +5,7 @@ document.getElementById('uploadForm').addEventListener('submit', async (event) =
     const resultDiv = document.getElementById('result');
     const resultTitle = document.getElementById('resultTitle');
     
-    // 파일이 선택되지 않으면 경고 메시지 표시
+    
     if (fileInput.files.length === 0) {
         resultDiv.innerText = 'No file selected.';
         return;

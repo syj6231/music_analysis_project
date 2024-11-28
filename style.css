@@ -1,11 +1,10 @@
-/* 기본 스타일 초기화 */
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* 전체 배경 및 글꼴 설정 */
 body {
     font-family: 'Arial', sans-serif;
     background-color: #f7f7f7;
@@ -18,14 +17,12 @@ body {
     text-align: center;
 }
 
-/* 헤더 스타일 */
 h1 {
     font-size: 2.5rem;
     color: #4A90E2;
     margin-bottom: 20px;
 }
 
-/* 폼 스타일 */
 form {
     background-color: white;
     padding: 30px;
@@ -67,7 +64,6 @@ button:hover {
     background-color: #357ABD;
 }
 
-/* 분석 결과 스타일 */
 #result {
     font-size: 1.2rem;
     color: #333;
@@ -80,7 +76,7 @@ button:hover {
     margin-top: 20px;
 }
 
-/* 미디어 쿼리: 작은 화면에서의 반응형 디자인 */
+
 @media (max-width: 600px) {
     h1 {
         font-size: 2rem;
@@ -100,10 +96,9 @@ button:hover {
     }
 }
 
-/* 로딩 애니메이션 스타일 */
 .loader {
-    border: 4px solid #f3f3f3; /* 배경 색상 */
-    border-top: 4px solid #4A90E2; /* 회전하는 부분 색상 */
+    border: 4px solid #f3f3f3; 
+    border-top: 4px solid #4A90E2; 
     border-radius: 50%;
     width: 40px;
     height: 40px;
@@ -116,7 +111,6 @@ button:hover {
     100% { transform: rotate(360deg); }
 }
 
-/* 분석 결과 제목 스타일 */
 #resultTitle {
     font-size: 1.5rem;
     font-weight: bold;
@@ -124,7 +118,6 @@ button:hover {
     margin-bottom: 10px;
 }
 
-/* 결과 내용 스타일 */
 #result {
     font-size: 1.2rem;
     color: #333;
