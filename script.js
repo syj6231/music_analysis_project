@@ -36,3 +36,55 @@ document.getElementById('uploadForm').addEventListener('submit', async (event) =
         resultDiv.innerText = 'Error analyzing music file.';
     }
 });
+
+document.getElementById('fetchResults').addEventListener('click', async () => {
+    const previousResultsDiv = document.getElementById('previousResults');
+    previousResultsDiv.innerHTML = '<p>Loading previous results...</p>';
+
+    try {
+        const response = await fetch('/results');
+        const results = await response.json();
+
+        previousResultsDiv.innerHTML = '<h3>Previous Results:</h3>';
+        results.forEach(result => {
+            const resultItem = document.createElement('div');
+            resultItem.innerHTML = `
+                <p><strong>File Name:</strong> ${result.fileName}</p>
+                <p><strong>Analysis Result:</strong> ${JSON.stringify(result.analysisResult)}</p>
+                <p><strong>Uploaded At:</strong> ${new Date(result.uploadedAt).toLocaleString()}</p>
+                <button class="deleteButton" data-id="${result._id}">Delete</button>
+                <hr>
+            `;
+            previousResultsDiv.appendChild(resultItem);
+        });
+
+        // 삭제 버튼 이벤트 추가
+        document.querySelectorAll('.deleteButton').forEach(button => {
+            button.addEventListener('click', async (event) => {
+                const resultId = event.target.dataset.id;
+
+                try {
+                    const deleteResponse = await fetch(`/results/${resultId}`, {
+                        method: 'DELETE',
+                    });
+
+                    const deleteResult = await deleteResponse.json();
+
+                    if (deleteResponse.ok) {
+                        alert('Result deleted successfully!');
+                        event.target.parentElement.remove(); // 삭제한 결과를 UI에서 제거
+                    } else {
+                        alert(`Error deleting result: ${deleteResult.error}`);
+                    }
+                } catch (error) {
+                    console.error('Error deleting result:', error);
+                    alert('Error deleting result.');
+                }
+            });
+        });
+    } catch (error) {
+        console.error('Error fetching results:', error);
+        previousResultsDiv.innerText = 'Error loading results.';
+    }
+});
+
