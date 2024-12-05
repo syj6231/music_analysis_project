@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Analysis</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Music Analysis Web App</h1>
+    <form id="uploadForm">
+        <label for="musicFile">Upload your music file:</label>
+        <input type="file" id="musicFile" name="musicFile" accept="audio/*" required>
+        <button type="submit">Analyze</button>
+    </form>
+
+    <button id="fetchResults">View Previous Results</button>
+    <div id="previousResults"></div>
+
+    
+    <div id="resultTitle"></div>
+    <div id="result"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
