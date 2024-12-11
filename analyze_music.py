@@ -46,13 +46,14 @@ def analyze_music(file_path):
         plt.ylabel('Mean Intensity')
 
         # 스펙트럼 분석 시각화
+        # MFCC 생성
         plt.subplot(3, 1, 2)
-        plt.plot(np.mean(spectral_centroid, axis=1), label='Spectral Centroid', color='orange')
-        plt.plot(np.mean(spectral_bandwidth, axis=1), label='Spectral Bandwidth', color='green')
-        plt.title('Spectral Features')
-        plt.xlabel('Frame')
-        plt.ylabel('Frequency (Hz)')
-        plt.legend()
+        mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
+        librosa.display.specshow(mfcc, sr=sr, x_axis='time', cmap='coolwarm')
+        plt.colorbar()
+        plt.title('MFCC')
+        plt.xlabel('Time (s)')
+        plt.ylabel('MFCC Coefficients')
 
         # RMS 시각화
         plt.subplot(3, 1, 3)
