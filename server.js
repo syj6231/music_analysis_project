@@ -7,6 +7,9 @@ const mongoose = require('mongoose');
 const app = express();
 require('dotenv').config();
 
+app.use(express.json()); // JSON 요청 본문 파싱
+
+
 mongoose.connect('mongodb://localhost:27017/music_analysis', {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -20,7 +23,8 @@ mongoose.connect('mongodb://localhost:27017/music_analysis', {
 const resultSchema = new mongoose.Schema({
   fileName: String,
   analysisResult: Object,
-  uploadedAt: { type: Date, default: Date.now }
+  uploadedAt: { type: Date, default: Date.now },
+  userId: String
 });
 
 const Result = mongoose.model('Result', resultSchema);
@@ -69,7 +73,7 @@ const authenticate = (req, res, next) => {
 };
 
 
-app.post('/analyze', upload.single('musicFile'), async (req, res) => {
+app.post('/analyze',authenticate, upload.single('musicFile'), async (req, res) => {
   const filePath = req.file.path;
 
   const pythonScript = `python analyze_music.py "${filePath}"`;
@@ -106,14 +110,17 @@ app.post('/analyze', upload.single('musicFile'), async (req, res) => {
 
 
 app.get('/results', authenticate, async (req, res) => {
-  try {
-      const results = await Result.find({ userId: req.user.id }).sort({ uploadedAt: -1 });
-      res.json(results);
-  } catch (err) {
-      console.error('Error fetching results:', err);
-      res.status(500).json({ error: 'Error fetching results from database.' });
-  }
+    try {
+        console.log('Fetching results for user ID:', req.user.id); // 디버깅 추가
+        const results = await Result.find({ userId: req.user.id }).sort({ uploadedAt: -1 });
+        console.log('Results found:', results); // 결과 로그
+        res.json(results);
+    } catch (err) {
+        console.error('Error fetching results:', err);
+        res.status(500).json({ error: 'Error fetching results from database.' });
+    }
 });
+
 
 
 
@@ -136,6 +143,21 @@ app.delete('/results/:id', authenticate, async (req, res) => {
   }
 });
 
+const users = [
+    { id: 123, username: 'testuser', password: 'password123' }, // 테스트용 사용자
+];
+
+app.post('/login', (req, res) => {
+    const { username, password } = req.body;
+
+    const user = users.find(u => u.username === username && u.password === password);
+    if (!user) {
+        return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    const token = jwt.sign({ id: user.id, username: user.username }, SECRET_KEY, { expiresIn: '1h' });
+    res.json({ token });
+});
 
 
 const PORT = 3000;

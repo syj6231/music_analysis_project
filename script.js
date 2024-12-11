@@ -1,3 +1,47 @@
+document.getElementById('loginForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    try {
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem('token', data.token); // JWT 저장
+            document.getElementById('loginMessage').innerText = 'Login successful!';
+            
+            // UI 업데이트: 로그인 폼 숨기기, 기능 활성화
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('uploadForm').style.display = 'block';
+            document.getElementById('fetchResults').style.display = 'inline-block';
+        } else {
+            document.getElementById('loginMessage').innerText = data.error;
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        document.getElementById('loginMessage').innerText = 'An error occurred.';
+    }
+});
+
+window.onload = () => {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+        document.getElementById('uploadForm').style.display = 'none';
+        document.getElementById('fetchResults').style.display = 'none';
+    }
+};
+
+
+
+
 document.getElementById('uploadForm').addEventListener('submit', async (event) => {
     event.preventDefault();
 
@@ -21,10 +65,16 @@ document.getElementById('uploadForm').addEventListener('submit', async (event) =
     resultDiv.innerHTML = '<div class="loader"></div><p>분석중입니다...</p>';
 
     try {
+        const token = localStorage.getItem('token'); // 저장된 JWT 가져오기
+
         const response = await fetch('/analyze', {
-            method: 'POST',
-            body: formData,
-        });
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`, // JWT 추가
+    },
+        body: formData,
+    });
+
 
         const result = await response.json();
         
@@ -37,61 +87,34 @@ document.getElementById('uploadForm').addEventListener('submit', async (event) =
     }
 });
 
+const token = localStorage.getItem('token'); // 로그인 시 저장된 토큰
+
 document.getElementById('fetchResults').addEventListener('click', async () => {
     const previousResultsDiv = document.getElementById('previousResults');
     previousResultsDiv.innerHTML = '<p>Loading previous results...</p>';
 
-    const token = localStorage.getItem('token'); 
-    
     try {
-        const response = await fetch('/results');
+        const token = localStorage.getItem('token'); // 저장된 JWT 가져오기
+
+        const response = await fetch('/results', {
+            headers: {
+                'Authorization': `Bearer ${token}`, // JWT 추가
+            },
+        });
+
+
+        if (!response.ok) throw new Error('Failed to fetch results');
+
         const results = await response.json();
-
-        previousResultsDiv.innerHTML = '<h3>Previous Results:</h3>';
-        results.forEach(result => {
-            const resultItem = document.createElement('div');
-            resultItem.innerHTML = `
-                <p><strong>File Name:</strong> ${result.fileName}</p>
-                <p><strong>Analysis Result:</strong> ${JSON.stringify(result.analysisResult)}</p>
-                <p><strong>Uploaded At:</strong> ${new Date(result.uploadedAt).toLocaleString()}</p>
-                <button class="deleteButton" data-id="${result._id}">Delete</button>
-                <hr>
-            `;
-            previousResultsDiv.appendChild(resultItem);
-        });
-
-        // 삭제 버튼 이벤트 추가
-        document.querySelectorAll('.deleteButton').forEach(button => {
-            button.addEventListener('click', async (event) => {
-                const resultId = event.target.dataset.id;
-
-                try {
-                    const deleteResponse = await fetch(`/results/${resultId}`, {
-                        method: 'DELETE',
-                    });
-
-                    const deleteResult = await deleteResponse.json();
-
-                    if (deleteResponse.ok) {
-                        alert('Result deleted successfully!');
-                        event.target.parentElement.remove(); // 삭제한 결과를 UI에서 제거
-                    } else {
-                        alert(`Error deleting result: ${deleteResult.error}`);
-                    }
-                } catch (error) {
-                    console.error('Error deleting result:', error);
-                    alert('Error deleting result.');
-                }
-            });
-        });
+        previousResultsDiv.innerHTML = JSON.stringify(results, null, 2);
     } catch (error) {
         console.error('Error fetching results:', error);
         previousResultsDiv.innerText = 'Error loading results.';
     }
 });
-// 로그인 후 저장된 토큰
 
-// 결과 저장 시 토큰 추가
+
+
 async function saveAnalysisResult(data) {
     const response = await fetch('/analyze', {
         method: 'POST',
@@ -104,7 +127,6 @@ async function saveAnalysisResult(data) {
     return response.json();
 }
 
-// 결과 조회 시 토큰 추가
 async function fetchResults() {
     const response = await fetch('/results', {
         headers: {
