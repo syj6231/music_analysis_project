@@ -102,16 +102,61 @@ document.getElementById('fetchResults').addEventListener('click', async () => {
             },
         });
 
-
         if (!response.ok) throw new Error('Failed to fetch results');
 
         const results = await response.json();
-        previousResultsDiv.innerHTML = JSON.stringify(results, null, 2);
+
+        previousResultsDiv.innerHTML = ''; // 기존 메시지 제거
+
+        results.forEach(result => {
+            const resultCard = document.createElement('div');
+            resultCard.classList.add('result-card');
+
+            resultCard.innerHTML = `
+                <h3>${result.fileName}</h3>
+                <p><strong>Uploaded At:</strong> ${new Date(result.uploadedAt).toLocaleString()}</p>
+                <p><strong>BPM:</strong> ${result.analysisResult.BPM}</p>
+                <p><strong>Key:</strong> ${result.analysisResult.Key}</p>
+                <button class="delete-btn" data-id="${result._id}">Delete</button>
+            `;
+
+            previousResultsDiv.appendChild(resultCard);
+        });
+
+        // 삭제 버튼 이벤트 리스너 추가
+        const deleteButtons = document.querySelectorAll('.delete-btn');
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', async (event) => {
+                const resultId = event.target.getAttribute('data-id');
+                await deleteResult(resultId);
+                event.target.parentElement.remove(); // UI에서 카드 삭제
+            });
+        });
     } catch (error) {
         console.error('Error fetching results:', error);
         previousResultsDiv.innerText = 'Error loading results.';
     }
 });
+
+async function deleteResult(resultId) {
+    try {
+        const token = localStorage.getItem('token'); // 저장된 JWT 가져오기
+        const response = await fetch(`/results/${resultId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+
+        if (!response.ok) throw new Error('Failed to delete result');
+        alert('Result deleted successfully!');
+    } catch (error) {
+        console.error('Error deleting result:', error);
+        alert('Failed to delete result.');
+    }
+}
+
+
 
 
 
