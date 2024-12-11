@@ -21,6 +21,7 @@ document.getElementById('loginForm').addEventListener('submit', async (event) =>
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('uploadForm').style.display = 'block';
             document.getElementById('fetchResults').style.display = 'inline-block';
+            document.getElementById('logoutButton').style.display = 'inline-block';
         } else {
             document.getElementById('loginMessage').innerText = data.error;
         }
@@ -79,7 +80,29 @@ document.getElementById('uploadForm').addEventListener('submit', async (event) =
         const result = await response.json();
         
         resultTitle.innerText = 'Result';  
-        resultDiv.innerText = JSON.stringify(result, null, 2);
+        resultDiv.innerHTML = `
+        <p><strong>BPM:</strong> ${result.BPM}</p>
+        <p><strong>Key:</strong> ${result.Key}</p>
+        <p><strong>Spectral Centroid Mean:</strong> ${result["Spectral Centroid Mean"]}</p>
+        <p><strong>Spectral Bandwidth Mean:</strong> ${result["Spectral Bandwidth Mean"]}</p>
+        <p><strong>RMS Mean:</strong> ${result["RMS Mean"]}</p>
+        <button id="showImageBtn">Show Visualization</button>
+        `;
+
+        document.getElementById('showImageBtn').addEventListener('click', () => {
+            const imageWindow = window.open("", "_blank", "width=800,height=600");
+            imageWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Visualization</title>
+                    </head>
+                    <body>
+                        <img src="${result.Visualization}" alt="Visualization Graph" style="width: 100%; height: auto;">
+                    </body>
+                </html>
+            `);
+        });
+
     } catch (error) {
         console.error('Error:', error);
         resultTitle.innerText = 'Result';
@@ -89,72 +112,9 @@ document.getElementById('uploadForm').addEventListener('submit', async (event) =
 
 const token = localStorage.getItem('token'); // 로그인 시 저장된 토큰
 
-document.getElementById('fetchResults').addEventListener('click', async () => {
-    const previousResultsDiv = document.getElementById('previousResults');
-    previousResultsDiv.innerHTML = '<p>Loading previous results...</p>';
-
-    try {
-        const token = localStorage.getItem('token'); // 저장된 JWT 가져오기
-
-        const response = await fetch('/results', {
-            headers: {
-                'Authorization': `Bearer ${token}`, // JWT 추가
-            },
-        });
-
-        if (!response.ok) throw new Error('Failed to fetch results');
-
-        const results = await response.json();
-
-        previousResultsDiv.innerHTML = ''; // 기존 메시지 제거
-
-        results.forEach(result => {
-            const resultCard = document.createElement('div');
-            resultCard.classList.add('result-card');
-
-            resultCard.innerHTML = `
-                <h3>${result.fileName}</h3>
-                <p><strong>Uploaded At:</strong> ${new Date(result.uploadedAt).toLocaleString()}</p>
-                <p><strong>BPM:</strong> ${result.analysisResult.BPM}</p>
-                <p><strong>Key:</strong> ${result.analysisResult.Key}</p>
-                <button class="delete-btn" data-id="${result._id}">Delete</button>
-            `;
-
-            previousResultsDiv.appendChild(resultCard);
-        });
-
-        // 삭제 버튼 이벤트 리스너 추가
-        const deleteButtons = document.querySelectorAll('.delete-btn');
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', async (event) => {
-                const resultId = event.target.getAttribute('data-id');
-                await deleteResult(resultId);
-                event.target.parentElement.remove(); // UI에서 카드 삭제
-            });
-        });
-    } catch (error) {
-        console.error('Error fetching results:', error);
-        previousResultsDiv.innerText = 'Error loading results.';
-    }
+document.getElementById('fetchResults').addEventListener('click', () => {
+    window.location.href = '/results.html'; // 현재 창에서 results.html로 이동
 });
-
-async function deleteResult(resultId) {
-    try {
-        const token = localStorage.getItem('token'); // 저장된 JWT 가져오기
-        const response = await fetch(`/results/${resultId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            },
-        });
-
-        if (!response.ok) throw new Error('Failed to delete result');
-        alert('Result deleted successfully!');
-    } catch (error) {
-        console.error('Error deleting result:', error);
-        alert('Failed to delete result.');
-    }
-}
 
 
 
@@ -181,4 +141,36 @@ async function fetchResults() {
     return response.json();
 }
 
+// 페이지 로드 시 로그인 상태 확인
+window.onload = () => {
+    const token = localStorage.getItem('token'); // JWT 토큰 가져오기
+
+    if (token) {
+        // 로그인 상태: 로그인 폼 숨기기, 기능 활성화, 로그아웃 버튼 표시
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('uploadForm').style.display = 'block';
+        document.getElementById('fetchResults').style.display = 'inline-block';
+        document.getElementById('logoutButton').style.display = 'inline-block';
+    } else {
+        // 비로그인 상태: 로그인 폼 표시
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('uploadForm').style.display = 'none';
+        document.getElementById('fetchResults').style.display = 'none';
+        document.getElementById('logoutButton').style.display = 'none';
+    }
+};
+
+// 로그아웃 버튼 이벤트 리스너
+document.getElementById('logoutButton').addEventListener('click', () => {
+    // JWT 토큰 제거
+    localStorage.removeItem('token');
+
+    // UI 업데이트: 로그인 폼 표시, 기타 버튼 숨기기
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('uploadForm').style.display = 'none';
+    document.getElementById('fetchResults').style.display = 'none';
+    document.getElementById('logoutButton').style.display = 'none';
+
+    alert('You have successfully logged out!');
+});
 

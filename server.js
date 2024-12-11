@@ -144,7 +144,8 @@ app.delete('/results/:id', authenticate, async (req, res) => {
 });
 
 const users = [
-    { id: 123, username: 'testuser', password: 'password123' }, // 테스트용 사용자
+    { id: 1, username: 'testuser', password: 'password123' },
+    { id: 2, username: 'web', password: '2024' }, // 테스트용 사용자
 ];
 
 app.post('/login', (req, res) => {
@@ -159,6 +160,9 @@ app.post('/login', (req, res) => {
     res.json({ token });
 });
 
+app.get('/results.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'results.html'));
+});
 
 const PORT = 3000;
 app.listen(PORT, () => {
