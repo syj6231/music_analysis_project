@@ -7,7 +7,7 @@ const mongoose = require('mongoose');
 const app = express();
 require('dotenv').config();
 
-app.use(express.json()); // JSON 요청 본문 파싱
+app.use(express.json()); 
 
 
 mongoose.connect('mongodb://localhost:27017/music_analysis', {
@@ -111,9 +111,9 @@ app.post('/analyze',authenticate, upload.single('musicFile'), async (req, res) =
 
 app.get('/results', authenticate, async (req, res) => {
     try {
-        console.log('Fetching results for user ID:', req.user.id); // 디버깅 추가
+        console.log('Fetching results for user ID:', req.user.id); 
         const results = await Result.find({ userId: req.user.id }).sort({ uploadedAt: -1 });
-        console.log('Results found:', results); // 결과 로그
+        console.log('Results found:', results); 
         res.json(results);
     } catch (err) {
         console.error('Error fetching results:', err);
@@ -145,7 +145,7 @@ app.delete('/results/:id', authenticate, async (req, res) => {
 
 const users = [
     { id: 1, username: 'testuser', password: 'password123' },
-    { id: 2, username: 'web', password: '2024' }, // 테스트용 사용자
+    { id: 2, username: 'web', password: '2024' },
 ];
 
 app.post('/login', (req, res) => {

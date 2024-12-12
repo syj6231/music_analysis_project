@@ -12,14 +12,14 @@
         <p>Loading results...</p>
     </div>
 
-    <!-- 돌아가기 버튼 추가 -->
+    
     <button id="goBack" style="margin-top: 20px;">Go Back</button>
 
     
 
 <script>
     document.addEventListener('DOMContentLoaded', async () => {
-        const token = localStorage.getItem('token'); // JWT 가져오기
+        const token = localStorage.getItem('token');
 
         try {
             const response = await fetch('/results', {
@@ -33,13 +33,13 @@
             const results = await response.json();
 
             const resultsDiv = document.getElementById('previousResults');
-            resultsDiv.innerHTML = ''; // 기존 메시지 제거
+            resultsDiv.innerHTML = ''; 
 
             results.forEach(result => {
                 const resultCard = document.createElement('div');
                 resultCard.classList.add('result-card');
 
-                // 분석 결과와 시각화 버튼 추가
+                
                 const analysisResult = result.analysisResult || {}; // 기본값 처리
                 resultCard.innerHTML = `
                     <h3>${result.fileName || 'Unknown File'}</h3>
@@ -56,7 +56,7 @@
                 resultsDiv.appendChild(resultCard);
             });
 
-            // 시각화 버튼 이벤트 리스너 추가
+            
             document.querySelectorAll('.show-image-btn').forEach(button => {
                 button.addEventListener('click', (event) => {
                     const visualizationData = event.target.getAttribute('data-visualization');
@@ -76,7 +76,7 @@
                 });
             });
 
-            // 삭제 버튼 이벤트 리스너 추가
+            
             document.querySelectorAll('.delete-btn').forEach(button => {
                 button.addEventListener('click', async (event) => {
                     const resultId = event.target.getAttribute('data-id');
@@ -93,7 +93,7 @@
 
     async function deleteResult(resultId) {
         try {
-            const token = localStorage.getItem('token'); // JWT 가져오기
+            const token = localStorage.getItem('token');
             const response = await fetch(`/results/${resultId}`, {
                 method: 'DELETE',
                 headers: {
@@ -109,9 +109,9 @@
         }
     }
 
-    // 돌아가기 버튼 이벤트 리스너
+    
     document.getElementById('goBack').addEventListener('click', () => {
-        window.location.href = '/'; // 메인 페이지로 이동
+        window.location.href = '/'; 
     });
 </script>
 </body>
