@@ -8,12 +8,8 @@
 </head>
 <body>
     <h1>Music Analysis Web App</h1>
-    <form id="uploadForm">
-        <label for="musicFile">Upload your music file:</label>
-        <input type="file" id="musicFile" name="musicFile" accept="audio/*" required>
-        <button type="submit">Analyze</button>
-    </form>
-    <!-- index.html -->
+
+    
     <form id="loginForm">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required>
@@ -24,13 +20,24 @@
     <div id="loginMessage"></div>
 
     
-    <button id="fetchResults">View Previous Results</button>
-    <div id="previousResults"></div>
+    <form id="uploadForm" style="display: none;">
+        <label for="musicFile">Upload your music file:</label>
+        <input type="file" id="musicFile" name="musicFile" accept="audio/*" required>
+        <button type="submit">Analyze</button>
+    </form>
 
     
+    
+    
+    <button id="fetchResults" style="display: none;">View Previous Results</button>
+    <div id="previousResults"></div>
+
     <div id="resultTitle"></div>
     <div id="result"></div>
 
+    <button id="logoutButton" style="display: none;">Logout</button>
+
     <script src="script.js"></script>
 </body>
+
 </html>
